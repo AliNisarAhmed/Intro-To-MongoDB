@@ -5,7 +5,7 @@ const postByTitle = (title) => {
 }
 
 const postsForAuthor = (authorId) => {
-  return Post.find({author: {_id: authorId}}).exec();
+  return Post.find({author: authorId}).exec();
 }
 
 const fullPostById = (id) => {
@@ -19,14 +19,14 @@ const allPostsSlim = (fieldsToSelect) => {
 const postByContentLength = (maxContentLength, minContentLength) => {
   return Post.find({
     contentLength: {
-      $gt: minContentLength,  // MongoDB Query Operators https://docs.mongodb.com/manual/reference/operator/query/
+      $gt: minContentLength,  // MongoDB (not Mongoose!!!) Query Operators https://docs.mongodb.com/manual/reference/operator/query/
       $lt: maxContentLength
     }
   }).exec()
 }
 
 const addSimilarPosts = (postId, similarPosts) => {
-  return Post.findByIdAndUpdate({ _id: postId }, { $push: { similarPosts: similarPosts }}, {new: true, upsert: true}).exec();  //operator ($push) commands reference is in the mongoDB docs, not in mongoose.
+  return Post.findByIdAndUpdate({ _id: postId }, { $push: { similarPosts: {$each: similarPosts} }}, {new: true, upsert: true}).exec();  //operator ($push) commands reference is in the mongoDB docs, not in mongoose.
 }
 
 module.exports = {

@@ -6,26 +6,6 @@ const connect = () => {
 
 // mongoose.connect('mongodb://localhost/intro-to-mongodb');
 
-const studentSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  faveFoods: [{ type: String }],
-  info: {
-    school: {
-      type: String
-    },
-    shoesize: {
-      type: Number
-    }
-  },
-  school: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'school'  // this is the model name
-  }
-});
 
 const schoolSchema = new mongoose.Schema({
   name: String,
@@ -35,8 +15,28 @@ const schoolSchema = new mongoose.Schema({
   staff: [{type: String}]
 })
 
+schoolSchema.virtual('staffCount')
+  .get(function () {  // we use regular function to get correct this binding, do not use arrow func
+    // console.log("In virtual");
+    return this.staff.length;
+  });
+
+
+// **** MIDDLEWARES *****
+
+
+// schoolSchema.pre('save', function() {
+//   console.log("before save");
+// })
+
+schoolSchema.post('save', function(doc, next) {
+  setTimeout(() => {
+    console.log('post saved', doc);
+    next();
+  }, 300)
+})
+
 const School = mongoose.model('school', schoolSchema);
-const Student = mongoose.model('student', studentSchema);
 
 connect()
   .then(async connection => {
@@ -46,28 +46,12 @@ connect()
       openSince: 2009,
       students: 1000,
       isGreat: true,
-      staff: ['a', 'b', 'c']
-    }
-    const schoolConfig2 = {
-      name: 'NED',
-      openSince: 1987,
-      students: 10000,
-      isGreat: true,
-      staff: ['x', 'b', 'z']
+      staff: ['a', 'b', 'c', 'd']
     }
 
-    const schools = await School.create([ schoolConfig, schoolConfig2])
-    const match = await School.find({
-      staff: 'b'
-    }).exec();
-
-    // const school2 = await School.findOneAndUpdate(
-    //   {name: 'AKUH'}, 
-    //   {name: 'AKUH'}, 
-    //   {upsert: true, new: true}
-    // ).exec();
-
-    console.log(match)
+    const mySchool = await School.create(schoolConfig)
+    
+    console.log(mySchool.staffCount)
   })
   .catch(e => console.log(e))
  
