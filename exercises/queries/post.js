@@ -16,19 +16,18 @@ const postSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'author',
-    required: true
-  },
   isFeatured: {
     type: Boolean,
     deafult: false
   },
-  similarPosts: [{
+  author: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'post',
-  }]
+    required: true,
+    ref: 'author'
+  },
+  similarPosts: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'post' }]
+  } 
 }, {timestamps: true})
 
 module.exports = mongoose.model('post', postSchema)
