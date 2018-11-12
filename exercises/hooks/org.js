@@ -21,6 +21,16 @@ const orgSchema = new mongoose.Schema({
       max: 4
     }
   }
+});
+
+orgSchema.virtual('avatar').get(function() {
+  return cdnUrl + String(this._id); 
+})
+
+orgSchema.post('remove', function(doc, next) {
+  console.log(doc);
+  Project.find({ org: doc._id }).remove().exec();
+  next();
 })
 
 module.exports = mongoose.model('org', orgSchema)
