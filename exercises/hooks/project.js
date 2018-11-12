@@ -23,6 +23,13 @@ const projectSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   }
-})
+});
+
+projectSchema.index({
+  org: 1,
+  name: 1,
+}, { unique: true })
+
+projectSchema.virtual('budgetLeft', )
 
 module.exports = mongoose.model('project', projectSchema)

@@ -8,40 +8,44 @@ const connect = () => {
 
 
 const schoolSchema = new mongoose.Schema({
-  name: String,
+  district: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'district',
+  },
+  name: {
+    type: String,
+    unique: true
+  },
   openSince: Number,
   students: Number,
   isGreat: Boolean,
   staff: [{type: String}]
 })
 
-schoolSchema.virtual('staffCount')
-  .get(function () {  // we use regular function to get correct this binding, do not use arrow func
-    // console.log("In virtual");
-    return this.staff.length;
-  });
-
-
-// **** MIDDLEWARES *****
-
-
-// schoolSchema.pre('save', function() {
-//   console.log("before save");
-// })
-
-schoolSchema.post('save', function(doc, next) {
-  setTimeout(() => {
-    console.log('post saved', doc);
-    next();
-  }, 300)
+const districtSchema = new mongoose.Schema({
+  name: String,
 })
 
+// **** COMPOUND INDEX ****
+
+schoolSchema.index({
+  district: 1,  // These two lines mean name is going to be unique under district, we first "index" by district, then under district we make name true;
+  name: 1,
+}, { unique: true })
+
 const School = mongoose.model('school', schoolSchema);
+const District = mongoose.model('district', districtSchema);
 
 connect()
   .then(async connection => {
 
+    const districtConfig = {
+      name: "East"
+    }
+    const myDistrict = await District.create(districtConfig);
+
     const schoolConfig = {
+      district: myDistrict.id,
       name: 'DOW',
       openSince: 2009,
       students: 1000,
@@ -49,9 +53,10 @@ connect()
       staff: ['a', 'b', 'c', 'd']
     }
 
-    const mySchool = await School.create(schoolConfig)
+    const mySchool = await School.create(schoolConfig);
+
+    console.log(mySchool);
     
-    console.log(mySchool.staffCount)
   })
   .catch(e => console.log(e))
  
