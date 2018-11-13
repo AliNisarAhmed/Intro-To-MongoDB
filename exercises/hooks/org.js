@@ -24,12 +24,12 @@ const orgSchema = new mongoose.Schema({
 });
 
 orgSchema.virtual('avatar').get(function() {
-  return cdnUrl + String(this._id); 
+  return `${cdnUrl}/${this._id}`; 
 })
 
-orgSchema.post('remove', function(doc, next) {
+orgSchema.post('remove', async function(doc, next) {
   console.log(doc);
-  Project.find({ org: doc._id }).remove().exec();
+  await Project.find({ org: doc._id }).remove().exec();
   next();
 })
 
