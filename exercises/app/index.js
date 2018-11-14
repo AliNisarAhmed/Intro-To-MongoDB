@@ -10,18 +10,23 @@ app.use(urlencoded({extended: true}))
 app.use(json())
 
 app.get('/todo/:id', async (req, res) => {
-  const todoId = req.params.id
+  const todoId = req.params.id;
+  const todo = await Todo.findById(todoId).lean().exec();
+  res.status(200).json(todo); 
 })
 
 app.get('/todos', async (req, res) => {
-
+  const todos = Todo.find({}).lean().exec();
+  res.status(200).json(todos);
 })
 
 app.post('/todo', async () => {
-  const todoToCreate = req.body.todo
+  const todoToCreate = req.body.todo;
+  const todo = Todo.create(todoToCreate)
+  res.status(201).json(todo.toJSON());
 })
 
-connect(/**add mongo url here */)
+connect('mongodb://localhost:27017/myTodos')
   .then(() => app.listen(4000, () => {
     console.log('server on http://localhost:4000')
   }))
